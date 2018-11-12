@@ -29,6 +29,9 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen"/>
+   <addaction name="separator"/>
+   <addaction name="actionFDGraph"/>
+   <addaction name="actionEdgeBundling"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -43,6 +46,39 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionFDGraph">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Resources/fdgraph.png</normaloff>Resources/fdgraph.png</iconset>
+   </property>
+   <property name="text">
+    <string>力导向图</string>
+   </property>
+   <property name="toolTip">
+    <string>开启/关闭力导向图</string>
+   </property>
+  </action>
+  <action name="actionEdgeBundling">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Resources/edgebundling.png</normaloff>Resources/edgebundling.png</iconset>
+   </property>
+   <property name="text">
+    <string>边束化</string>
+   </property>
+   <property name="toolTip">
+    <string>开启/关闭边束化</string>
    </property>
   </action>
  </widget>

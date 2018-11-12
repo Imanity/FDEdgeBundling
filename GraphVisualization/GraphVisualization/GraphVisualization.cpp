@@ -7,27 +7,45 @@
 
 GraphVisualization::GraphVisualization(QWidget *parent)	: QMainWindow(parent) {
 	ui.setupUi(this);
+
+	timer = new QTimer(this);
+
+	connect(timer, SIGNAL(timeout()), this, SLOT(timeoutEvent()));
 	connect(ui.actionOpen, SIGNAL(triggered()), this, SLOT(openGraph()));
+	connect(ui.actionFDGraph, SIGNAL(triggered()), this, SLOT(switchFDGraphFlag()));
+	connect(ui.actionEdgeBundling, SIGNAL(triggered()), this, SLOT(switchEdgeBundlingFlag()));
 }
 
 void GraphVisualization::paintEvent(QPaintEvent *e) {
 	QPainter p(this);
-	p.setPen(Qt::black);
-	p.setBrush(Qt::red);
+	p.setPen(QColor("#4169E1"));
+	p.setBrush(QColor("#9400D3"));
 
-	for (int i = 0; i < graph.edges.size(); ++i) {
-		p.drawLine(graph.nodes[graph.edges[i].uid1].x, tbr_height + graph.nodes[graph.edges[i].uid1].y,
-			graph.nodes[graph.edges[i].uid2].x, tbr_height + graph.nodes[graph.edges[i].uid2].y);
+	if (edgebundling_flag) {
+		for (int i = 0; i < graph.edges.size(); ++i) {
+			if (graph.subdivision_points.size() <= i || graph.subdivision_points[i].size() <= 1)
+				break;
+			for (int j = 0; j < graph.subdivision_points[i].size() - 1; ++j) {
+				p.drawLine(graph.subdivision_points[i][j].x, graph.subdivision_points[i][j].y,
+					graph.subdivision_points[i][j + 1].x, graph.subdivision_points[i][j + 1].y);
+			}
+		}
+	} else {
+		for (int i = 0; i < graph.edges.size(); ++i) {
+			p.drawLine(graph.nodes[graph.edges[i].id1].pos.x, tbr_height + graph.nodes[graph.edges[i].id1].pos.y,
+				graph.nodes[graph.edges[i].id2].pos.x, tbr_height + graph.nodes[graph.edges[i].id2].pos.y);
+		}
 	}
 
 	for (int i = 0; i < graph.nodes.size(); ++i) {
-		p.drawEllipse(graph.nodes[i].x - 4, tbr_height + graph.nodes[i].y - 4, 8, 8);
+		p.drawEllipse(graph.nodes[i].pos.x - 4, tbr_height + graph.nodes[i].pos.y - 4, 8, 8);
 	}
 
-	p.setBrush(Qt::white);
+	p.setPen(QColor("#1A1A1A"));
+	p.setBrush(QColor("#F5F5F5"));
 	if (user_detail_uid >= 0) {
-		int x = graph.nodes[user_detail_uid].x + 20;
-		int y = graph.nodes[user_detail_uid].y - 10;
+		int x = graph.nodes[user_detail_uid].pos.x + 20;
+		int y = graph.nodes[user_detail_uid].pos.y - 10;
 		std::string username = graph.nodes[user_detail_uid].username;
 		long long uid = graph.nodes[user_detail_uid].uid;
 
@@ -57,16 +75,65 @@ void GraphVisualization::paintEvent(QPaintEvent *e) {
 	}
 }
 
+void GraphVisualization::timeoutEvent() {
+	for (int i = 0; i < graph.nodes.size(); ++i) {
+		graph.nodes[i].pos += (target_graph.nodes[i].pos - graph.nodes[i].pos) / 3;
+	}
+	animate_frame++;
+	if (animate_frame >= max_frame) {
+		graph = target_graph;
+		isAnimating = false;
+		timer->stop();
+	}
+	update();
+}
+
 void GraphVisualization::mouseMoveEvent(QMouseEvent *e) {
 	int x = e->x(), y = e->y() - tbr_height;
 	user_detail_uid = -1;
 	for (int i = 0; i < graph.nodes.size(); ++i) {
-		if (abs(graph.nodes[i].x - x) < 6 && abs(graph.nodes[i].y - y) < 6) {
+		if (abs(graph.nodes[i].pos.x - x) < 6 && abs(graph.nodes[i].pos.y - y) < 6) {
 			user_detail_uid = i;
 			break;
 		}
 	}
 	update();
+	if (isAnimating || edgebundling_flag)
+		return;
+	if (dragging_uid >= 0) {
+		graph.nodes[dragging_uid].pos.x = e->x();
+		graph.nodes[dragging_uid].pos.y = e->y() - tbr_height;
+		update();
+		return;
+	}
+}
+
+void GraphVisualization::mousePressEvent(QMouseEvent *e) {
+	if (isAnimating || edgebundling_flag)
+		return;
+	int x = e->x(), y = e->y() - tbr_height;
+	dragging_uid = -1;
+	for (int i = 0; i < graph.nodes.size(); ++i) {
+		if (abs(graph.nodes[i].pos.x - x) < 6 && abs(graph.nodes[i].pos.y - y) < 6) {
+			dragging_uid = i;
+			break;
+		}
+	}
+}
+
+void GraphVisualization::mouseReleaseEvent(QMouseEvent *e) {
+	if (isAnimating || edgebundling_flag)
+		return;
+	if (dragging_uid >= 0) {
+		dragging_uid = -1;
+		if (fdgraph_flag) {
+			target_graph = graph;
+			target_graph.forceDirectedLayout(wnd_width, wnd_height, 100);
+			isAnimating = true;
+			animate_frame = 0;
+			timer->start(40);
+		}
+	}
 }
 
 void GraphVisualization::openGraph() {
@@ -75,5 +142,32 @@ void GraphVisualization::openGraph() {
 		return;
 	graph.readFromFile(file.toStdString());
 	avatar_path = file.toStdString() + "/Avatars/";
+	graph.randomLayout(wnd_width, wnd_height);
+	update();
+	if (fdgraph_flag) {
+		target_graph = graph;
+		target_graph.forceDirectedLayout(wnd_width, wnd_height, 100);
+		isAnimating = true;
+		animate_frame = 0;
+		timer->start(40);
+	}
+}
+
+void GraphVisualization::switchFDGraphFlag() {
+	fdgraph_flag = !fdgraph_flag;
+	if (fdgraph_flag) {
+		target_graph = graph;
+		target_graph.forceDirectedLayout(wnd_width, wnd_height, 100);
+		isAnimating = true;
+		animate_frame = 0;
+		timer->start(40);
+	}
+}
+
+void GraphVisualization::switchEdgeBundlingFlag() {
+	edgebundling_flag = !edgebundling_flag;
+	if (edgebundling_flag) {
+		graph.edgeBundling();
+	}
 	update();
 }

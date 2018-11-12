@@ -4,9 +4,9 @@ Edge::Edge() {
 	//
 }
 
-Edge::Edge(int u_id1, int u_id2) {
-	uid1 = u_id1;
-	uid2 = u_id2;
+Edge::Edge(int _id1, int _id2) {
+	id1 = _id1;
+	id2 = _id2;
 }
 
 Edge::~Edge() {

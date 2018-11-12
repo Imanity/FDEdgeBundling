@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vec2.h"
+
 #include <string>
 
 class Node {
@@ -14,5 +16,6 @@ public:
 	std::string username;
 
 public:
-	double x, y;
+	Vec2 pos;
+	Vec2 disp;
 };

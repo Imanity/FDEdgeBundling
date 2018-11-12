@@ -22,6 +22,8 @@ class Ui_GraphVisualizationClass
 {
 public:
     QAction *actionOpen;
+    QAction *actionFDGraph;
+    QAction *actionEdgeBundling;
     QWidget *centralWidget;
     QToolBar *mainToolBar;
 
@@ -36,6 +38,19 @@ public:
         QIcon icon;
         icon.addFile(QStringLiteral("Resources/open.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionOpen->setIcon(icon);
+        actionFDGraph = new QAction(GraphVisualizationClass);
+        actionFDGraph->setObjectName(QStringLiteral("actionFDGraph"));
+        actionFDGraph->setCheckable(true);
+        actionFDGraph->setChecked(true);
+        QIcon icon1;
+        icon1.addFile(QStringLiteral("Resources/fdgraph.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionFDGraph->setIcon(icon1);
+        actionEdgeBundling = new QAction(GraphVisualizationClass);
+        actionEdgeBundling->setObjectName(QStringLiteral("actionEdgeBundling"));
+        actionEdgeBundling->setCheckable(true);
+        QIcon icon2;
+        icon2.addFile(QStringLiteral("Resources/edgebundling.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionEdgeBundling->setIcon(icon2);
         centralWidget = new QWidget(GraphVisualizationClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setMouseTracking(true);
@@ -45,6 +60,9 @@ public:
         GraphVisualizationClass->addToolBar(Qt::TopToolBarArea, mainToolBar);
 
         mainToolBar->addAction(actionOpen);
+        mainToolBar->addSeparator();
+        mainToolBar->addAction(actionFDGraph);
+        mainToolBar->addAction(actionEdgeBundling);
 
         retranslateUi(GraphVisualizationClass);
 
@@ -61,6 +79,14 @@ public:
 #ifndef QT_NO_SHORTCUT
         actionOpen->setShortcut(QApplication::translate("GraphVisualizationClass", "Ctrl+O", nullptr));
 #endif // QT_NO_SHORTCUT
+        actionFDGraph->setText(QApplication::translate("GraphVisualizationClass", "\345\212\233\345\257\274\345\220\221\345\233\276", nullptr));
+#ifndef QT_NO_TOOLTIP
+        actionFDGraph->setToolTip(QApplication::translate("GraphVisualizationClass", "\345\274\200\345\220\257/\345\205\263\351\227\255\345\212\233\345\257\274\345\220\221\345\233\276", nullptr));
+#endif // QT_NO_TOOLTIP
+        actionEdgeBundling->setText(QApplication::translate("GraphVisualizationClass", "\350\276\271\346\235\237\345\214\226", nullptr));
+#ifndef QT_NO_TOOLTIP
+        actionEdgeBundling->setToolTip(QApplication::translate("GraphVisualizationClass", "\345\274\200\345\220\257/\345\205\263\351\227\255\350\276\271\346\235\237\345\214\226", nullptr));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };

@@ -7,5 +7,5 @@ public:
 	~Edge();
 
 public:
-	int uid1, uid2;
+	int id1, id2;
 };
