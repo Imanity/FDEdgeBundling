@@ -26,8 +26,8 @@ void GraphVisualization::paintEvent(QPaintEvent *e) {
 			if (graph.subdivision_points.size() <= i || graph.subdivision_points[i].size() <= 1)
 				break;
 			for (int j = 0; j < graph.subdivision_points[i].size() - 1; ++j) {
-				p.drawLine(graph.subdivision_points[i][j].x, graph.subdivision_points[i][j].y,
-					graph.subdivision_points[i][j + 1].x, graph.subdivision_points[i][j + 1].y);
+				p.drawLine(graph.subdivision_points[i][j].x, tbr_height + graph.subdivision_points[i][j].y,
+					graph.subdivision_points[i][j + 1].x, tbr_height + graph.subdivision_points[i][j + 1].y);
 			}
 		}
 	} else {
