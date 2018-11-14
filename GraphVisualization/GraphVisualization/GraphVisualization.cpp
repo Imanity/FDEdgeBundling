@@ -137,7 +137,7 @@ void GraphVisualization::mouseReleaseEvent(QMouseEvent *e) {
 }
 
 void GraphVisualization::openGraph() {
-	QString file = QFileDialog::getExistingDirectory(this, "Open Graph", "../../Data");
+	QString file = QFileDialog::getExistingDirectory(this, "Open Graph", "Data");
 	if (!file.size())
 		return;
 	graph.readFromFile(file.toStdString());
